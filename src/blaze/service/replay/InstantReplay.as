@@ -11,10 +11,10 @@ package blaze.service.replay
 	{
 		private static var instantReplayObjects:Vector.<InstantReplayObject>;// = new Vector.<InstantReplayObject>();
 		private static var _record:Boolean = false;
-		private static var playing:Boolean = false;
+		private static var _playing:Boolean = false;
 		
-		private static var currentFrame:int = 0;
-		private static var totalFrames:int = 0;
+		public static var currentFrame:int = 0;
+		public static var totalFrames:int = 0;
 		
 		private static var broadcaster:Sprite = new Sprite();
 		
@@ -88,21 +88,27 @@ package blaze.service.replay
 			InstantReplay.init();
 			_state = value;
 			if (state == InstantReplay.STATE_RECORDING) {
-				playing = false;
+				_playing = false;
 				broadcaster.removeEventListener(Event.ENTER_FRAME, PlaybackUpdate);
 				broadcaster.addEventListener(Event.ENTER_FRAME, RecordUpdate);
 			}
 			else {
 				broadcaster.removeEventListener(Event.ENTER_FRAME, RecordUpdate);
 				if (state == InstantReplay.STATE_PLAY) {
-					playing = true;
+					_playing = true;
+					//currentFrame = 0;
 					broadcaster.addEventListener(Event.ENTER_FRAME, PlaybackUpdate);
 				}
 				else if (state == InstantReplay.STATE_STOP) {
-					playing = false;
+					_playing = false;
 					broadcaster.removeEventListener(Event.ENTER_FRAME, PlaybackUpdate);
 				}
 			}
+		}
+		
+		static public function get playing():Boolean 
+		{
+			return _playing;
 		}
 		
 		private static function RecordUpdate(e:Event):void 
@@ -154,6 +160,7 @@ package blaze.service.replay
 
 import flash.display.DisplayObject;
 import flash.events.MouseEvent;
+import blaze.events.ReplayMouseEvent;
 
 class InstantReplayObject
 {
@@ -165,12 +172,29 @@ class InstantReplayObject
 	{
 		this.displayObject = displayObject;
 		currentActions = new FrameActions();
+		displayObject.addEventListener(MouseEvent.CLICK, OnMouseEvent);
+		displayObject.addEventListener(MouseEvent.CONTEXT_MENU, OnMouseEvent);
+		displayObject.addEventListener(MouseEvent.DOUBLE_CLICK, OnMouseEvent);
+		displayObject.addEventListener(MouseEvent.MIDDLE_CLICK, OnMouseEvent);
+		displayObject.addEventListener(MouseEvent.MIDDLE_MOUSE_DOWN, OnMouseEvent);
+		displayObject.addEventListener(MouseEvent.MIDDLE_MOUSE_UP, OnMouseEvent);
+		displayObject.addEventListener(MouseEvent.MOUSE_DOWN, OnMouseEvent);
 		displayObject.addEventListener(MouseEvent.MOUSE_MOVE, OnMouseEvent);
+		displayObject.addEventListener(MouseEvent.MOUSE_OUT, OnMouseEvent);
+		displayObject.addEventListener(MouseEvent.MOUSE_OVER, OnMouseEvent);
+		displayObject.addEventListener(MouseEvent.MOUSE_UP, OnMouseEvent);
+		displayObject.addEventListener(MouseEvent.MOUSE_WHEEL, OnMouseEvent);
+		displayObject.addEventListener(MouseEvent.RELEASE_OUTSIDE, OnMouseEvent);
+		displayObject.addEventListener(MouseEvent.RIGHT_CLICK, OnMouseEvent);
+		displayObject.addEventListener(MouseEvent.RIGHT_MOUSE_DOWN, OnMouseEvent);
+		displayObject.addEventListener(MouseEvent.RIGHT_MOUSE_UP, OnMouseEvent);
+		displayObject.addEventListener(MouseEvent.ROLL_OUT, OnMouseEvent);
+		displayObject.addEventListener(MouseEvent.ROLL_OVER, OnMouseEvent);
 	}
 	
 	private function OnMouseEvent(e:MouseEvent):void 
 	{
-		currentActions.mouseEvents.push(e);
+		currentActions.mouseEvents.push(new ReplayMouseEvent(e.type, e.bubbles, e.cancelable, e.localX, e.localY, e.relatedObject, e.ctrlKey, e.altKey, e.shiftKey, e.buttonDown, e.delta, e.commandKey, e.controlKey, e.clickCount));
 	}
 	
 	public function dispose():void 
@@ -193,9 +217,13 @@ class InstantReplayObject
 	
 	public function play(frameIndex:int):void 
 	{
-		for (var i:int = 0; i < frames[frameIndex].mouseEvents.length; i++) 
+		if (frames.length == 0) return;
+		var len:int = frames[frameIndex].mouseEvents.length;
+		for (var i:int = 0; i < len; i++) 
 		{
-			displayObject.dispatchEvent(frames[frameIndex].mouseEvents[i]);
+			if (frames.length > i) {
+				displayObject.dispatchEvent(frames[frameIndex].mouseEvents[i]);
+			}
 		}
 		
 	}
@@ -212,7 +240,7 @@ class InstantReplayObject
 
 class FrameActions
 {
-	public var mouseEvents:Vector.<MouseEvent> = new Vector.<MouseEvent>();
+	public var mouseEvents:Vector.<ReplayMouseEvent> = new Vector.<ReplayMouseEvent>();
 	
 	public function FrameActions()
 	{

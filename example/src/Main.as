@@ -1,7 +1,7 @@
 package 
 {
+	import blaze.events.ReplayMouseEvent;
 	import blaze.service.replay.InstantReplay;
-	import blaze.utils.delay.Delay;
 	import com.bit101.components.PushButton;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -25,14 +25,11 @@ package
 		{
 			var bmd:BitmapData = new BitmapData(50, 50, false, 0xFF0000);
 			bitmap = new Bitmap(bmd);
-			bitmap.x = stage.stageWidth / 2;
-			bitmap.y = stage.stageHeight / 2;
+			bitmap.x = target.x = stage.stageWidth / 2;
+			bitmap.y = target.y = stage.stageHeight / 2;
 			addChild(bitmap);
 			
 			InstantReplay.register(stage);
-			
-			
-			//Delay.by(120, Playback);
 			
 			recordButton = new PushButton(this, 10, 10, 'Record Movement', StartRecording);
 			playButton = new PushButton(this, 10, 35, 'Playback Movement', StopRecording);
@@ -43,8 +40,6 @@ package
 		
 		private function StartRecording(e:MouseEvent):void 
 		{
-			//recordButton.toggle = false;
-			
 			InstantReplay.clear();
 			InstantReplay.record = true;
 		}
@@ -62,6 +57,12 @@ package
 		
 		private function UpdateLocation(e:Event):void 
 		{
+			if (InstantReplay.record) recordButton.alpha = 0.2;
+			else recordButton.alpha = 1;
+			
+			if (InstantReplay.playing) playButton.alpha = 0.2;
+			else playButton.alpha = 1;
+			
 			bitmap.x = ((bitmap.x * 10) + target.x) / 11;
 			bitmap.y = ((bitmap.y * 10) + target.y) / 11;
 		}
