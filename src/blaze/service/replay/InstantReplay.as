@@ -173,28 +173,35 @@ class InstantReplayObject
 		this.displayObject = displayObject;
 		currentActions = new FrameActions();
 		displayObject.addEventListener(MouseEvent.CLICK, OnMouseEvent);
-		displayObject.addEventListener(MouseEvent.CONTEXT_MENU, OnMouseEvent);
 		displayObject.addEventListener(MouseEvent.DOUBLE_CLICK, OnMouseEvent);
-		displayObject.addEventListener(MouseEvent.MIDDLE_CLICK, OnMouseEvent);
-		displayObject.addEventListener(MouseEvent.MIDDLE_MOUSE_DOWN, OnMouseEvent);
-		displayObject.addEventListener(MouseEvent.MIDDLE_MOUSE_UP, OnMouseEvent);
 		displayObject.addEventListener(MouseEvent.MOUSE_DOWN, OnMouseEvent);
 		displayObject.addEventListener(MouseEvent.MOUSE_MOVE, OnMouseEvent);
 		displayObject.addEventListener(MouseEvent.MOUSE_OUT, OnMouseEvent);
 		displayObject.addEventListener(MouseEvent.MOUSE_OVER, OnMouseEvent);
 		displayObject.addEventListener(MouseEvent.MOUSE_UP, OnMouseEvent);
 		displayObject.addEventListener(MouseEvent.MOUSE_WHEEL, OnMouseEvent);
-		displayObject.addEventListener(MouseEvent.RELEASE_OUTSIDE, OnMouseEvent);
-		displayObject.addEventListener(MouseEvent.RIGHT_CLICK, OnMouseEvent);
-		displayObject.addEventListener(MouseEvent.RIGHT_MOUSE_DOWN, OnMouseEvent);
-		displayObject.addEventListener(MouseEvent.RIGHT_MOUSE_UP, OnMouseEvent);
 		displayObject.addEventListener(MouseEvent.ROLL_OUT, OnMouseEvent);
 		displayObject.addEventListener(MouseEvent.ROLL_OVER, OnMouseEvent);
+		
+		CONFIG::air {
+			displayObject.addEventListener(MouseEvent.CONTEXT_MENU, OnMouseEvent);
+			displayObject.addEventListener(MouseEvent.MIDDLE_CLICK, OnMouseEvent);
+			displayObject.addEventListener(MouseEvent.MIDDLE_MOUSE_DOWN, OnMouseEvent);
+			displayObject.addEventListener(MouseEvent.MIDDLE_MOUSE_UP, OnMouseEvent);
+			displayObject.addEventListener(MouseEvent.RELEASE_OUTSIDE, OnMouseEvent);
+			displayObject.addEventListener(MouseEvent.RIGHT_CLICK, OnMouseEvent);
+			displayObject.addEventListener(MouseEvent.RIGHT_MOUSE_DOWN, OnMouseEvent);
+			displayObject.addEventListener(MouseEvent.RIGHT_MOUSE_UP, OnMouseEvent);
+		}
 	}
 	
 	private function OnMouseEvent(e:MouseEvent):void 
 	{
-		currentActions.mouseEvents.push(new ReplayMouseEvent(e.type, e.bubbles, e.cancelable, e.localX, e.localY, e.relatedObject, e.ctrlKey, e.altKey, e.shiftKey, e.buttonDown, e.delta, e.commandKey, e.controlKey, e.clickCount));
+		CONFIG::air {
+			currentActions.mouseEvents.push(new ReplayMouseEvent(e.type, e.bubbles, e.cancelable, e.localX, e.localY, e.relatedObject, e.ctrlKey, e.altKey, e.shiftKey, e.buttonDown, e.delta, e.commandKey, e.controlKey, e.clickCount));
+			return;
+		}
+		currentActions.mouseEvents.push(new ReplayMouseEvent(e.type, e.bubbles, e.cancelable, e.localX, e.localY, e.relatedObject, e.ctrlKey, e.altKey, e.shiftKey, e.buttonDown, e.delta));
 	}
 	
 	public function dispose():void 
