@@ -34,7 +34,9 @@ package
 			InstantReplay.register(stage);
 			
 			recordButton = new PushButton(this, 10, 10, 'Record Movement', RecordMovement);
-			playButton = new PushButton(this, 10, 35, 'Playback Movement', PlaybackMovement);
+			playButton = new PushButton(this, 10, 10, 'Playback Movement', PlaybackMovement);
+			playButton.x = stage.stageWidth - 10 - playButton.width;
+			playButton.visible = false;
 			
 			stage.addEventListener(MouseEvent.MOUSE_MOVE, OnMouseMove);
 			addEventListener(Event.ENTER_FRAME, UpdateLocation);
@@ -59,11 +61,14 @@ package
 		
 		private function UpdateLocation(e:Event):void 
 		{
-			if (InstantReplay.record) recordButton.alpha = 0.2;
-			else recordButton.alpha = 1;
-			
-			if (InstantReplay.playing) playButton.alpha = 0.2;
-			else playButton.alpha = 1;
+			if (InstantReplay.record) {
+				recordButton.visible = false;
+				playButton.visible = true;
+			}
+			else {
+				recordButton.visible = true;
+				playButton.visible = false;
+			}
 			
 			bitmap.x = ((bitmap.x * 10) + target.x) / 11;
 			bitmap.y = ((bitmap.y * 10) + target.y) / 11;
